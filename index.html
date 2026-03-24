@@ -3,109 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>定型文コピーツール</title>
+    <title>定型文コピーツール v2</title>
     <style>
-        /* キーボード表示を考慮した上部固定レイアウト */
         body {
             font-family: sans-serif;
             margin: 0;
-            padding-top: env(safe-area-inset-top); /* iPhoneのノッチ対策 */
-            background-color: #f8f9fa;
+            padding-top: env(safe-area-inset-top);
+            background-color: #f0f2f5;
         }
 
         .header-ui {
             position: sticky;
             top: 0;
             background: white;
-            padding: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             z-index: 100;
         }
 
-        /* 2行分のテキストエリア */
+        /* テキストエリアを広めに設定 */
         textarea {
             width: 100%;
-            height: 3em; /* 約2〜3行分 */
-            padding: 10px;
+            height: 6em; 
+            padding: 12px;
             box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
             font-size: 16px;
             resize: none;
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            line-height: 1.4;
         }
 
-        /* ボタンのコンテナ */
+        textarea:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
         .button-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 4列構成 */
-            gap: 8px;
-            margin-bottom: 10px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
-        /* 定型文ボタン */
         .preset-btn {
-            padding: 10px 0;
+            padding: 12px 0;
             font-size: 14px;
-            background-color: #e9ecef;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        /* メインのコピーボタン */
-        .copy-btn {
-            width: 100%;
-            padding: 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
+            background-color: #ffffff;
+            border: 1px solid #ccc;
             border-radius: 8px;
-            font-size: 16px;
+            cursor: pointer;
             font-weight: bold;
         }
 
-        .copy-btn:active { background-color: #0056b3; }
+        .preset-btn:active { background-color: #e2e2e2; }
+
+        .copy-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .copy-btn:active { background-color: #218838; transform: translateY(2px); }
     </style>
 </head>
 <body>
 
 <div class="header-ui">
-    <textarea id="myInput" placeholder="ここに入力..."></textarea>
+    <textarea id="myInput" placeholder="ここに文字が追加されます..."></textarea>
 
     <div class="button-grid">
-        <button class="preset-btn" onclick="setPreset('ああ')">ああ</button>
-        <button class="preset-btn" onclick="setPreset('いい')">いい</button>
-        <button class="preset-btn" onclick="setPreset('うう')">うう</button>
-        <button class="preset-btn" onclick="setPreset('ええ')">ええ</button>
-        <button class="preset-btn" onclick="setPreset('おお')">おお</button>
-        <button class="preset-btn" onclick="setPreset('かか')">かか</button>
-        <button class="preset-btn" onclick="setPreset('きき')">きき</button>
-        <button class="preset-btn" onclick="setPreset('くく')">くく</button>
+        <button class="preset-btn" onclick="addPreset('ああ')">ああ</button>
+        <button class="preset-btn" onclick="addPreset('いい')">いい</button>
+        <button class="preset-btn" onclick="addPreset('うう')">うう</button>
+        <button class="preset-btn" onclick="addPreset('ええ')">ええ</button>
+        <button class="preset-btn" onclick="addPreset('おお')">おお</button>
+        <button class="preset-btn" onclick="addPreset('かか')">かか</button>
+        <button class="preset-btn" onclick="addPreset('きき')">きき</button>
+        <button class="preset-btn" onclick="addPreset('くく')">くく</button>
     </div>
 
-    <button class="copy-btn" onclick="copyAndOpen()">コピーしてKDE Connectを起動</button>
+    <button class="copy-btn" onclick="copyAndOpen()">コピーしてKDEを起動</button>
 </div>
 
 <script>
-    // 定型文を入力欄にセットする
-    function setPreset(text) {
-        document.getElementById("myInput").value = text;
+    // 定型文を「追記」する（最後に改行を入れる設定）
+    function addPreset(text) {
+        const area = document.getElementById("myInput");
+        // すでに文字がある場合は改行してから追加
+        if (area.value.length > 0) {
+            area.value += "\n" + text;
+        } else {
+            area.value = text;
+        }
     }
 
-    // コピーしてアプリを起動
     function copyAndOpen() {
         const copyTarget = document.getElementById("myInput");
         
-        // クリップボードにコピー
         navigator.clipboard.writeText(copyTarget.value).then(() => {
-            // KDE Connectを起動
-            window.location.href = "kdeconnect://";
+            // Android向け：より強力な起動命令（インテント）
+            // これで動かない場合は、アプリ側のURLスキーム設定が制限されている可能性があります
+            const intentUrl = "intent://#Intent;scheme=kdeconnect;package=org.kde.kdeconnect_tp;end";
+            
+            window.location.href = intentUrl;
+
+            // フォールバック（インテントが効かない場合、従来のスキームも試行）
+            setTimeout(() => {
+                window.location.href = "kdeconnect://";
+            }, 500);
         });
     }
 </script>
 
 </body>
 </html>
+
