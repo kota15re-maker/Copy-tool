@@ -2,53 +2,110 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>シンプルコピーツール</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>定型文コピーツール</title>
     <style>
-        /* 見た目を整えるための最小限のスタイル */
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
+        /* キーボード表示を考慮した上部固定レイアウト */
+        body {
+            font-family: sans-serif;
             margin: 0;
-            background-color: #f5f5f5;
+            padding-top: env(safe-area-inset-top); /* iPhoneのノッチ対策 */
+            background-color: #f8f9fa;
         }
-        .container { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        input { padding: 12px; width: 250px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; }
-        button { 
-            padding: 12px 20px; 
-            cursor: pointer; 
-            background-color: #28a745; 
-            color: white; 
-            border: none; 
-            border-radius: 4px; 
+
+        .header-ui {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        /* 2行分のテキストエリア */
+        textarea {
+            width: 100%;
+            height: 3em; /* 約2〜3行分 */
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 8px;
             font-size: 16px;
-            margin-left: 5px;
+            resize: none;
+            display: block;
+            margin-bottom: 10px;
         }
-        button:hover { background-color: #218838; }
-        button:active { transform: translateY(1px); }
+
+        /* ボタンのコンテナ */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4列構成 */
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        /* 定型文ボタン */
+        .preset-btn {
+            padding: 10px 0;
+            font-size: 14px;
+            background-color: #e9ecef;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        /* メインのコピーボタン */
+        .copy-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .copy-btn:active { background-color: #0056b3; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <input type="text" id="myInput" placeholder="文字を入力...">
-        <button onclick="copyText()">コピー</button>
+<div class="header-ui">
+    <textarea id="myInput" placeholder="ここに入力..."></textarea>
+
+    <div class="button-grid">
+        <button class="preset-btn" onclick="setPreset('ああ')">ああ</button>
+        <button class="preset-btn" onclick="setPreset('いい')">いい</button>
+        <button class="preset-btn" onclick="setPreset('うう')">うう</button>
+        <button class="preset-btn" onclick="setPreset('ええ')">ええ</button>
+        <button class="preset-btn" onclick="setPreset('おお')">おお</button>
+        <button class="preset-btn" onclick="setPreset('かか')">かか</button>
+        <button class="preset-btn" onclick="setPreset('きき')">きき</button>
+        <button class="preset-btn" onclick="setPreset('くく')">くく</button>
     </div>
 
-    <script>
-        function copyText() {
-            const copyTarget = document.getElementById("myInput");
-            
-            // クリップボードに書き込み（アラートなし）
-            navigator.clipboard.writeText(copyTarget.value);
+    <button class="copy-btn" onclick="copyAndOpen()">コピーしてKDE Connectを起動</button>
+</div>
 
-            // 任意：コピーした瞬間に少しだけ入力欄を光らせるなどの視覚効果が必要なら追加できます
-        }
-    </script>
+<script>
+    // 定型文を入力欄にセットする
+    function setPreset(text) {
+        document.getElementById("myInput").value = text;
+    }
+
+    // コピーしてアプリを起動
+    function copyAndOpen() {
+        const copyTarget = document.getElementById("myInput");
+        
+        // クリップボードにコピー
+        navigator.clipboard.writeText(copyTarget.value).then(() => {
+            // KDE Connectを起動
+            window.location.href = "kdeconnect://";
+        });
+    }
+</script>
 
 </body>
 </html>
