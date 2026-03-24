@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>定型文コピーツール v2</title>
+    <title>定型文コピーツール v3</title>
     <style>
         body {
             font-family: sans-serif;
@@ -21,10 +21,9 @@
             z-index: 100;
         }
 
-        /* テキストエリアを広めに設定 */
         textarea {
             width: 100%;
-            height: 6em; 
+            height: 8em; /* さらに少し広めにしました */
             padding: 12px;
             box-sizing: border-box;
             border: 2px solid #ddd;
@@ -78,7 +77,7 @@
 <body>
 
 <div class="header-ui">
-    <textarea id="myInput" placeholder="ここに文字が追加されます..."></textarea>
+    <textarea id="myInput" placeholder="タップして入力、または定型文を選択..."></textarea>
 
     <div class="button-grid">
         <button class="preset-btn" onclick="addPreset('ああ')">ああ</button>
@@ -95,28 +94,30 @@
 </div>
 
 <script>
-    // 定型文を「追記」する（最後に改行を入れる設定）
+    // 定型文を現在のカーソル位置（または末尾）に追記する
     function addPreset(text) {
         const area = document.getElementById("myInput");
-        // すでに文字がある場合は改行してから追加
-        if (area.value.length > 0) {
-            area.value += "\n" + text;
-        } else {
-            area.value = text;
-        }
+        const startPos = area.selectionStart;
+        const endPos = area.selectionEnd;
+        const currentValue = area.value;
+
+        // カーソル位置に挿入（改行なし）
+        area.value = currentValue.substring(0, startPos) + text + currentValue.substring(endPos);
+
+        // 挿入した文字の直後にカーソルを移動させる
+        area.focus();
+        area.selectionStart = area.selectionEnd = startPos + text.length;
     }
 
     function copyAndOpen() {
         const copyTarget = document.getElementById("myInput");
         
         navigator.clipboard.writeText(copyTarget.value).then(() => {
-            // Android向け：より強力な起動命令（インテント）
-            // これで動かない場合は、アプリ側のURLスキーム設定が制限されている可能性があります
+            // Android向け：インテント
             const intentUrl = "intent://#Intent;scheme=kdeconnect;package=org.kde.kdeconnect_tp;end";
-            
             window.location.href = intentUrl;
 
-            // フォールバック（インテントが効かない場合、従来のスキームも試行）
+            // フォールバック
             setTimeout(() => {
                 window.location.href = "kdeconnect://";
             }, 500);
@@ -126,4 +127,3 @@
 
 </body>
 </html>
-
